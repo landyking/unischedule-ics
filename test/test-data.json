@@ -1,0 +1,105 @@
+{
+  "papers": [
+    {
+      "code": "CS101",
+      "title": "Introduction to Computer Science",
+      "startDate": "2025-02-01T00:00:00Z",
+      "endDate": "2025-06-30T23:59:59Z",
+      "breaks": [
+        {
+          "title": "Mid-semester Break",
+          "startDate": "2025-04-01T00:00:00Z",
+          "endDate": "2025-04-07T23:59:59Z"
+        }
+      ],
+      "memo": "Fundamental concepts of programming",
+      "events": [
+        {
+          "title": "Lecture",
+          "weekday": 1,
+          "startTime": "09:00",
+          "endTime": "10:30",
+          "location": "Room A101"
+        },
+        {
+          "title": "Lab",
+          "weekday": 3,
+          "startTime": "14:00",
+          "endTime": "16:00",
+          "location": "Computer Lab B"
+        }
+      ]
+    },
+    {
+      "code": "MATH201",
+      "title": "Calculus II",
+      "startDate": "2025-02-01T00:00:00Z",
+      "endDate": "2025-06-30T23:59:59Z",
+      "breaks": [
+        {
+          "title": "Mid-semester Break",
+          "startDate": "2025-04-01T00:00:00Z",
+          "endDate": "2025-04-07T23:59:59Z"
+        }
+      ],
+      "events": [
+        {
+          "title": "Lecture",
+          "weekday": 2,
+          "startTime": "11:00",
+          "endTime": "12:30",
+          "location": "Lecture Hall C"
+        },
+        {
+          "title": "Tutorial",
+          "weekday": 4,
+          "startTime": "15:00",
+          "endTime": "16:00",
+          "location": "Room D205"
+        }
+      ]
+    },
+    {
+      "code": "PHYS301",
+      "title": "Quantum Mechanics",
+      "startDate": "2025-02-01T00:00:00Z",
+      "endDate": "2025-06-30T23:59:59Z",
+      "breaks": [
+        {
+          "title": "Mid-semester Break",
+          "startDate": "2025-04-01T00:00:00Z",
+          "endDate": "2025-04-07T23:59:59Z"
+        },
+        {
+          "title": "Easter Break",
+          "startDate": "2025-04-17T00:00:00Z",
+          "endDate": "2025-04-21T23:59:59Z"
+        }
+      ],
+      "memo": "Advanced quantum theory course",
+      "events": [
+        {
+          "title": "Lecture",
+          "weekday": 1,
+          "startTime": "13:00",
+          "endTime": "14:30",
+          "location": "Physics Building Room 301"
+        },
+        {
+          "title": "Lecture",
+          "weekday": 5,
+          "startTime": "10:00",
+          "endTime": "11:30",
+          "location": "Physics Building Room 301"
+        },
+        {
+          "title": "Lab",
+          "weekday": 3,
+          "startTime": "09:00",
+          "endTime": "12:00",
+          "location": "Physics Lab 2"
+        }
+      ]
+    }
+  ]
+}
