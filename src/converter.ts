@@ -15,6 +15,39 @@ export const parseSimpleDate = (dateString: string): Date => {
 };
 
 /**
+ * Formats a date to ICS date format (YYYYMMDD)
+ * @param date Date object
+ * @returns ICS formatted date string
+ */
+const formatIcsDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}${month}${day}`;
+};
+
+/**
+ * Formats a date to ICS time format (HHMMSS)
+ * @param date Date object
+ * @returns ICS formatted time string
+ */
+const formatIcsTime = (date: Date): string => {
+  const hour = String(date.getHours()).padStart(2, '0');
+  const minute = String(date.getMinutes()).padStart(2, '0');
+  const second = String(date.getSeconds()).padStart(2, '0');
+  return `${hour}${minute}${second}`;
+};
+
+/**
+ * Formats a date to ICS datetime format (YYYYMMDDTHHMMSS)
+ * @param date Date object
+ * @returns ICS formatted datetime string
+ */
+const formatIcsDateTime = (date: Date): string => {
+  return `${formatIcsDate(date)}T${formatIcsTime(date)}`;
+};
+
+/**
  * Converts date and time to ICS date-time format (local time, no timezone)
  * @param date Date object
  * @param timeString Time in HH:MM format
@@ -24,15 +57,7 @@ export const dateTimeToIcs = (date: Date, timeString: string): string => {
   const [hours, minutes] = timeString.split(':').map(Number);
   const newDate = new Date(date);
   newDate.setHours(hours, minutes, 0, 0);
-  
-  const year = newDate.getFullYear();
-  const month = String(newDate.getMonth() + 1).padStart(2, '0');
-  const day = String(newDate.getDate()).padStart(2, '0');
-  const hour = String(newDate.getHours()).padStart(2, '0');
-  const minute = String(newDate.getMinutes()).padStart(2, '0');
-  const second = String(newDate.getSeconds()).padStart(2, '0');
-  
-  return `${year}${month}${day}T${hour}${minute}${second}`;
+  return formatIcsDateTime(newDate);
 };
 
 /**
@@ -40,15 +65,7 @@ export const dateTimeToIcs = (date: Date, timeString: string): string => {
  * @returns ICS formatted timestamp string
  */
 export const getCurrentIcsTimestamp = (): string => {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const hour = String(now.getHours()).padStart(2, '0');
-  const minute = String(now.getMinutes()).padStart(2, '0');
-  const second = String(now.getSeconds()).padStart(2, '0');
-  
-  return `${year}${month}${day}T${hour}${minute}${second}`;
+  return formatIcsDateTime(new Date());
 };
 
 /**
@@ -89,10 +106,7 @@ export const generateEventId = (paperCode: string, eventTitle: string, weekday: 
  * @returns RRULE string
  */
 export const generateWeeklyRRule = (endDate: Date): string => {
-  const year = endDate.getFullYear();
-  const month = String(endDate.getMonth() + 1).padStart(2, '0');
-  const day = String(endDate.getDate()).padStart(2, '0');
-  const untilDate = `${year}${month}${day}T235959`;
+  const untilDate = `${formatIcsDate(endDate)}T235959`;
   return `FREQ=WEEKLY;UNTIL=${untilDate}`;
 };
 
@@ -140,6 +154,26 @@ export const generateExceptionDates = (
  */
 
 /**
+ * Creates event summary from paper code and event title
+ * @param paperCode Course code
+ * @param eventTitle Event title
+ * @returns Event summary string
+ */
+const createEventSummary = (paperCode: string, eventTitle: string): string => {
+  return `${paperCode} - ${eventTitle}`;
+};
+
+/**
+ * Creates event description from paper information
+ * @param paperTitle Paper title
+ * @param memo Optional memo
+ * @returns Event description string
+ */
+const createEventDescription = (paperTitle: string, memo?: string): string => {
+  return memo ? `${paperTitle}\n\n${memo}` : paperTitle;
+};
+
+/**
  * Creates an ICS event from a paper event
  * @param paper Paper information
  * @param event Event information
@@ -156,8 +190,8 @@ export const createIcsEvent = (paper: Paper, event: PaperEvent): IcsEvent => {
   const dtend = dateTimeToIcs(firstOccurrence, event.endTime);
   
   const uid = generateEventId(paper.code, event.title, event.weekday, event.startTime);
-  const summary = `${paper.code} - ${event.title}`;
-  const description = paper.memo ? `${paper.title}\n\n${paper.memo}` : paper.title;
+  const summary = createEventSummary(paper.code, event.title);
+  const description = createEventDescription(paper.title, paper.memo);
   
   const rrule = generateWeeklyRRule(endDate);
   const exdate = generateExceptionDates(startDate, endDate, event.weekday, event.startTime, paper.breaks);
@@ -179,6 +213,16 @@ export const createIcsEvent = (paper: Paper, event: PaperEvent): IcsEvent => {
  */
 
 /**
+ * Formats an ICS property line
+ * @param property Property name
+ * @param value Property value
+ * @returns Formatted ICS property line
+ */
+const formatIcsProperty = (property: string, value: string): string => {
+  return `${property}:${value}`;
+};
+
+/**
  * Formats an ICS event as a string
  * @param event ICS event object
  * @returns ICS formatted event string
@@ -186,21 +230,21 @@ export const createIcsEvent = (paper: Paper, event: PaperEvent): IcsEvent => {
 export const formatIcsEvent = (event: IcsEvent): string => {
   const lines = [
     'BEGIN:VEVENT',
-    `UID:${event.uid}`,
-    `DTSTAMP:${getCurrentIcsTimestamp()}`,
-    `DTSTART:${event.dtstart}`,
-    `DTEND:${event.dtend}`,
-    `SUMMARY:${event.summary}`,
-    `DESCRIPTION:${event.description.replace(/\n/g, '\\n')}`,
-    `LOCATION:${event.location}`
+    formatIcsProperty('UID', event.uid),
+    formatIcsProperty('DTSTAMP', getCurrentIcsTimestamp()),
+    formatIcsProperty('DTSTART', event.dtstart),
+    formatIcsProperty('DTEND', event.dtend),
+    formatIcsProperty('SUMMARY', event.summary),
+    formatIcsProperty('DESCRIPTION', event.description.replace(/\n/g, '\\n')),
+    formatIcsProperty('LOCATION', event.location)
   ];
   
   if (event.rrule) {
-    lines.push(`RRULE:${event.rrule}`);
+    lines.push(formatIcsProperty('RRULE', event.rrule));
   }
   
   if (event.exdate && event.exdate.length > 0) {
-    lines.push(`EXDATE:${event.exdate.join(',')}`);
+    lines.push(formatIcsProperty('EXDATE', event.exdate.join(',')));
   }
   
   lines.push('END:VEVENT');
@@ -216,9 +260,9 @@ export const formatIcsEvent = (event: IcsEvent): string => {
 export const formatIcsCalendar = (calendar: IcsCalendar): string => {
   const header = [
     'BEGIN:VCALENDAR',
-    `VERSION:${calendar.version}`,
-    `PRODID:${calendar.prodid}`,
-    `CALSCALE:${calendar.calscale}`
+    formatIcsProperty('VERSION', calendar.version),
+    formatIcsProperty('PRODID', calendar.prodid),
+    formatIcsProperty('CALSCALE', calendar.calscale)
   ].join('\r\n');
   
   const events = calendar.events.map(formatIcsEvent).join('\r\n');
@@ -232,39 +276,46 @@ export const formatIcsCalendar = (calendar: IcsCalendar): string => {
  */
 
 /**
- * Converts university course schedules into .ics calendar format
- * @param papers Array of paper objects containing course information
- * @returns ICS formatted string
+ * Processes a single paper and its events into ICS events
+ * @param paper Paper object containing course information
+ * @returns Array of ICS events
  */
-export const convertToIcs = (papers: Paper[]): string => {
+const processPaperEvents = (paper: Paper): IcsEvent[] => {
   const events: IcsEvent[] = [];
   
-  // Process each paper and its events
-  for (const paper of papers) {
-    for (const event of paper.events) {
-      try {
-        const icsEvent = createIcsEvent(paper, event);
-        events.push(icsEvent);
-      } catch (error) {
-        console.warn(`Failed to create event for ${paper.code} - ${event.title}:`, error);
-      }
+  for (const event of paper.events) {
+    try {
+      const icsEvent = createIcsEvent(paper, event);
+      events.push(icsEvent);
+    } catch (error) {
+      console.warn(`Failed to create event for ${paper.code} - ${event.title}:`, error);
     }
   }
   
-  const calendar: IcsCalendar = {
+  return events;
+};
+
+/**
+ * Creates an ICS calendar object with default properties
+ * @param events Array of ICS events
+ * @returns ICS calendar object
+ */
+const createIcsCalendar = (events: IcsEvent[]): IcsCalendar => {
+  return {
     events,
     prodid: '-//unischedule-ics//EN',
     version: '2.0',
     calscale: 'GREGORIAN'
   };
-  
-  return formatIcsCalendar(calendar);
 };
 
 /**
- * Hello world function for the library
- * @returns Greeting message
+ * Converts university course schedules into .ics calendar format
+ * @param papers Array of paper objects containing course information
+ * @returns ICS formatted string
  */
-export const helloWorld = (): string => {
-  return 'Hello World from unischedule-ics!';
+export const convertToIcs = (papers: Paper[]): string => {
+  const allEvents = papers.flatMap(processPaperEvents);
+  const calendar = createIcsCalendar(allEvents);
+  return formatIcsCalendar(calendar);
 };

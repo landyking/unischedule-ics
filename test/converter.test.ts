@@ -1,5 +1,4 @@
 import {
-  helloWorld,
   convertToIcs,
   parseSimpleDate,
   dateTimeToIcs,
@@ -312,12 +311,5 @@ describe('Main Conversion Function', () => {
     expect(result).toContain('BEGIN:VCALENDAR');
     expect(result).toContain('END:VCALENDAR');
     expect(result).not.toContain('BEGIN:VEVENT');
-  });
-});
-
-describe('Legacy Tests', () => {
-  test('helloWorld should return greeting message', () => {
-    const result = helloWorld();
-    expect(result).toBe('Hello World from unischedule-ics!');
   });
 });

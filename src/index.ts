@@ -3,7 +3,6 @@
 export { Paper, PaperBreak, PaperEvent, IcsEvent, IcsCalendar } from './types';
 export { 
   convertToIcs, 
-  helloWorld,
   parseSimpleDate,
   dateTimeToIcs,
   getCurrentIcsTimestamp,
@@ -17,9 +16,8 @@ export {
 } from './converter';
 
 // Default export
-import { convertToIcs, helloWorld } from './converter';
+import { convertToIcs } from './converter';
 
 export default {
-  convertToIcs,
-  helloWorld,
+  convertToIcs
 };
