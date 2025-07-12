@@ -3,13 +3,13 @@
     {
       "code": "CS101",
       "title": "Introduction to Computer Science",
-      "startDate": "2025-02-01T00:00:00Z",
-      "endDate": "2025-06-30T23:59:59Z",
+      "startDate": "2025-02-01",
+      "endDate": "2025-06-30",
       "breaks": [
         {
           "title": "Mid-semester Break",
-          "startDate": "2025-04-01T00:00:00Z",
-          "endDate": "2025-04-07T23:59:59Z"
+          "startDate": "2025-04-01",
+          "endDate": "2025-04-07"
         }
       ],
       "memo": "Fundamental concepts of programming",
@@ -33,13 +33,13 @@
     {
       "code": "MATH201",
       "title": "Calculus II",
-      "startDate": "2025-02-01T00:00:00Z",
-      "endDate": "2025-06-30T23:59:59Z",
+      "startDate": "2025-02-01",
+      "endDate": "2025-06-30",
       "breaks": [
         {
           "title": "Mid-semester Break",
-          "startDate": "2025-04-01T00:00:00Z",
-          "endDate": "2025-04-07T23:59:59Z"
+          "startDate": "2025-04-01",
+          "endDate": "2025-04-07"
         }
       ],
       "events": [
@@ -62,18 +62,18 @@
     {
       "code": "PHYS301",
       "title": "Quantum Mechanics",
-      "startDate": "2025-02-01T00:00:00Z",
-      "endDate": "2025-06-30T23:59:59Z",
+      "startDate": "2025-02-01",
+      "endDate": "2025-06-30",
       "breaks": [
         {
           "title": "Mid-semester Break",
-          "startDate": "2025-04-01T00:00:00Z",
-          "endDate": "2025-04-07T23:59:59Z"
+          "startDate": "2025-04-01",
+          "endDate": "2025-04-07"
         },
         {
           "title": "Easter Break",
-          "startDate": "2025-04-17T00:00:00Z",
-          "endDate": "2025-04-21T23:59:59Z"
+          "startDate": "2025-04-17",
+          "endDate": "2025-04-21"
         }
       ],
       "memo": "Advanced quantum theory course",

@@ -33,8 +33,8 @@ Expected data structures for this library:
 
 interface PaperBreak{
     title: string,
-    startDate: string, // ISO 8601 format, use UTC
-    endDate: string, // ISO 8601 format, use UTC
+    startDate: string, // use YYYY-MM-DD format.
+    endDate: string, // use YYYY-MM-DD format.
 }
 
 interface PaperEvent{
@@ -48,8 +48,8 @@ interface PaperEvent{
 interface Paper {
   code: string;
   title: string;
-  startDate: string; // ISO 8601 format, use UTC
-  endDate: string; // ISO 8601 format, use UTC
+  startDate: string; // use YYYY-MM-DD format.
+  endDate: string; // use YYYY-MM-DD format.
   breaks: PaperBreak[]; 
   memo?: string
   events: PaperEvent[];
