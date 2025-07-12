@@ -8,7 +8,9 @@
     "build": "tsc",
     "test": "jest",
     "dev": "tsc --watch",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build && npm test",
+    "version": "npm run build && git add -A dist",
+    "postversion": "git push && git push --tags"
   },
   "keywords": [
     "ics",
