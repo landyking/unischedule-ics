@@ -4,8 +4,9 @@ export { Paper, PaperBreak, PaperEvent, IcsEvent, IcsCalendar } from './types';
 export { 
   convertToIcs, 
   helloWorld,
-  isoToIcsDateTime,
+  parseSimpleDate,
   dateTimeToIcs,
+  getCurrentIcsTimestamp,
   findFirstWeekdayOccurrence,
   generateEventId,
   generateWeeklyRRule,

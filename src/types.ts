@@ -2,8 +2,8 @@
 
 export interface PaperBreak {
   title: string;
-  startDate: string; // ISO 8601 format, use UTC
-  endDate: string; // ISO 8601 format, use UTC
+  startDate: string; // use YYYY-MM-DD format
+  endDate: string; // use YYYY-MM-DD format
 }
 
 export interface PaperEvent {
@@ -17,8 +17,8 @@ export interface PaperEvent {
 export interface Paper {
   code: string;
   title: string;
-  startDate: string; // ISO 8601 format, use UTC
-  endDate: string; // ISO 8601 format, use UTC
+  startDate: string; // use YYYY-MM-DD format
+  endDate: string; // use YYYY-MM-DD format
   breaks: PaperBreak[];
   memo?: string;
   events: PaperEvent[];
@@ -30,8 +30,8 @@ export interface IcsEvent {
   summary: string;
   description: string;
   location: string;
-  dtstart: string; // YYYYMMDDTHHMMSSZ format
-  dtend: string; // YYYYMMDDTHHMMSSZ format
+  dtstart: string; // YYYYMMDDTHHMMSS format (local time, no timezone)
+  dtend: string; // YYYYMMDDTHHMMSS format (local time, no timezone)
   rrule?: string; // Recurrence rule
   exdate?: string[]; // Exception dates
 }

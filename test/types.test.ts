@@ -4,8 +4,8 @@ describe('Type Definitions Tests', () => {
   test('Paper interface should accept valid data', () => {
     const paperBreak: PaperBreak = {
       title: 'Winter Break',
-      startDate: '2025-12-20T00:00:00Z',
-      endDate: '2025-01-15T23:59:59Z'
+      startDate: '2025-12-20',
+      endDate: '2026-01-15'
     };
 
     const paperEvent: PaperEvent = {
@@ -19,8 +19,8 @@ describe('Type Definitions Tests', () => {
     const paper: Paper = {
       code: 'CS101',
       title: 'Introduction to Computer Science',
-      startDate: '2025-01-01T00:00:00Z',
-      endDate: '2025-12-31T23:59:59Z',
+      startDate: '2025-01-01',
+      endDate: '2025-12-31',
       breaks: [paperBreak],
       memo: 'Important course',
       events: [paperEvent]
@@ -36,8 +36,8 @@ describe('Type Definitions Tests', () => {
     const paper: Paper = {
       code: 'MATH201',
       title: 'Calculus II',
-      startDate: '2025-01-01T00:00:00Z',
-      endDate: '2025-12-31T23:59:59Z',
+      startDate: '2025-01-01',
+      endDate: '2025-12-31',
       breaks: [],
       events: []
     };
@@ -53,14 +53,14 @@ describe('Type Definitions Tests', () => {
       summary: 'Test Event',
       description: 'Test Description',
       location: 'Test Location',
-      dtstart: '20250101T090000Z',
-      dtend: '20250101T100000Z',
-      rrule: 'FREQ=WEEKLY;UNTIL=20251231T235959Z',
-      exdate: ['20250405', '20250412']
+      dtstart: '20250101T090000',
+      dtend: '20250101T100000',
+      rrule: 'FREQ=WEEKLY;UNTIL=20251231T235959',
+      exdate: ['20250405T090000', '20250412T090000']
     };
 
     expect(icsEvent.uid).toBe('test-event@unischedule-ics');
-    expect(icsEvent.rrule).toBe('FREQ=WEEKLY;UNTIL=20251231T235959Z');
+    expect(icsEvent.rrule).toBe('FREQ=WEEKLY;UNTIL=20251231T235959');
     expect(icsEvent.exdate).toHaveLength(2);
   });
 
@@ -70,8 +70,8 @@ describe('Type Definitions Tests', () => {
       summary: 'Test Event',
       description: 'Test Description',
       location: 'Test Location',
-      dtstart: '20250101T090000Z',
-      dtend: '20250101T100000Z'
+      dtstart: '20250101T090000',
+      dtend: '20250101T100000'
     };
 
     expect(icsEvent.rrule).toBeUndefined();

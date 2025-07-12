@@ -5,26 +5,50 @@ import { Paper, PaperEvent, PaperBreak, IcsEvent, IcsCalendar } from './types';
  */
 
 /**
- * Converts ISO 8601 date string to ICS date-time format (YYYYMMDDTHHMMSSZ)
- * @param isoDate ISO 8601 date string
- * @returns ICS formatted date-time string
+ * Converts YYYY-MM-DD date string to Date object
+ * @param dateString Date string in YYYY-MM-DD format
+ * @returns Date object
  */
-export const isoToIcsDateTime = (isoDate: string): string => {
-  const date = new Date(isoDate);
-  return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+export const parseSimpleDate = (dateString: string): Date => {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day); // month is 0-indexed in Date constructor
 };
 
 /**
- * Converts date and time to ICS date-time format
+ * Converts date and time to ICS date-time format (local time, no timezone)
  * @param date Date object
  * @param timeString Time in HH:MM format
- * @returns ICS formatted date-time string
+ * @returns ICS formatted date-time string without timezone
  */
 export const dateTimeToIcs = (date: Date, timeString: string): string => {
   const [hours, minutes] = timeString.split(':').map(Number);
   const newDate = new Date(date);
-  newDate.setUTCHours(hours, minutes, 0, 0);
-  return newDate.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  newDate.setHours(hours, minutes, 0, 0);
+  
+  const year = newDate.getFullYear();
+  const month = String(newDate.getMonth() + 1).padStart(2, '0');
+  const day = String(newDate.getDate()).padStart(2, '0');
+  const hour = String(newDate.getHours()).padStart(2, '0');
+  const minute = String(newDate.getMinutes()).padStart(2, '0');
+  const second = String(newDate.getSeconds()).padStart(2, '0');
+  
+  return `${year}${month}${day}T${hour}${minute}${second}`;
+};
+
+/**
+ * Converts current date to ICS timestamp format (local time, no timezone)
+ * @returns ICS formatted timestamp string
+ */
+export const getCurrentIcsTimestamp = (): string => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hour = String(now.getHours()).padStart(2, '0');
+  const minute = String(now.getMinutes()).padStart(2, '0');
+  const second = String(now.getSeconds()).padStart(2, '0');
+  
+  return `${year}${month}${day}T${hour}${minute}${second}`;
 };
 
 /**
@@ -65,7 +89,10 @@ export const generateEventId = (paperCode: string, eventTitle: string, weekday: 
  * @returns RRULE string
  */
 export const generateWeeklyRRule = (endDate: Date): string => {
-  const untilDate = endDate.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const year = endDate.getFullYear();
+  const month = String(endDate.getMonth() + 1).padStart(2, '0');
+  const day = String(endDate.getDate()).padStart(2, '0');
+  const untilDate = `${year}${month}${day}T235959`;
   return `FREQ=WEEKLY;UNTIL=${untilDate}`;
 };
 
@@ -74,6 +101,7 @@ export const generateWeeklyRRule = (endDate: Date): string => {
  * @param startDate Course start date
  * @param endDate Course end date
  * @param weekday Event weekday (1-7)
+ * @param eventStartTime Event start time in HH:MM format
  * @param breaks Array of break periods
  * @returns Array of exception dates in ICS format
  */
@@ -81,13 +109,14 @@ export const generateExceptionDates = (
   startDate: Date,
   endDate: Date,
   weekday: number,
+  eventStartTime: string,
   breaks: PaperBreak[]
 ): string[] => {
   const exceptionDates: string[] = [];
   
   for (const breakPeriod of breaks) {
-    const breakStart = new Date(breakPeriod.startDate);
-    const breakEnd = new Date(breakPeriod.endDate);
+    const breakStart = parseSimpleDate(breakPeriod.startDate);
+    const breakEnd = parseSimpleDate(breakPeriod.endDate);
     
     // Find all occurrences of the weekday within the break period
     const firstOccurrence = findFirstWeekdayOccurrence(breakStart, weekday);
@@ -95,7 +124,9 @@ export const generateExceptionDates = (
     let currentDate = new Date(firstOccurrence);
     while (currentDate <= breakEnd) {
       if (currentDate >= breakStart && currentDate <= breakEnd) {
-        exceptionDates.push(currentDate.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '').substring(0, 8));
+        // Use the same format as DTSTART/DTEND with time
+        const exceptionDateTime = dateTimeToIcs(currentDate, eventStartTime);
+        exceptionDates.push(exceptionDateTime);
       }
       currentDate.setDate(currentDate.getDate() + 7); // Move to next week
     }
@@ -115,8 +146,8 @@ export const generateExceptionDates = (
  * @returns ICS event object
  */
 export const createIcsEvent = (paper: Paper, event: PaperEvent): IcsEvent => {
-  const startDate = new Date(paper.startDate);
-  const endDate = new Date(paper.endDate);
+  const startDate = parseSimpleDate(paper.startDate);
+  const endDate = parseSimpleDate(paper.endDate);
   
   // Find the first occurrence of this event
   const firstOccurrence = findFirstWeekdayOccurrence(startDate, event.weekday);
@@ -129,7 +160,7 @@ export const createIcsEvent = (paper: Paper, event: PaperEvent): IcsEvent => {
   const description = paper.memo ? `${paper.title}\n\n${paper.memo}` : paper.title;
   
   const rrule = generateWeeklyRRule(endDate);
-  const exdate = generateExceptionDates(startDate, endDate, event.weekday, paper.breaks);
+  const exdate = generateExceptionDates(startDate, endDate, event.weekday, event.startTime, paper.breaks);
   
   return {
     uid,
@@ -156,7 +187,7 @@ export const formatIcsEvent = (event: IcsEvent): string => {
   const lines = [
     'BEGIN:VEVENT',
     `UID:${event.uid}`,
-    `DTSTAMP:${isoToIcsDateTime(new Date().toISOString())}`,
+    `DTSTAMP:${getCurrentIcsTimestamp()}`,
     `DTSTART:${event.dtstart}`,
     `DTEND:${event.dtend}`,
     `SUMMARY:${event.summary}`,

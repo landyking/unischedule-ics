@@ -1,8 +1,9 @@
 import {
   helloWorld,
   convertToIcs,
-  isoToIcsDateTime,
+  parseSimpleDate,
   dateTimeToIcs,
+  getCurrentIcsTimestamp,
   findFirstWeekdayOccurrence,
   generateEventId,
   generateWeeklyRRule,
@@ -16,22 +17,29 @@ import { Paper, PaperBreak, PaperEvent, IcsEvent, IcsCalendar } from '../src/typ
 const testData = require('./test-data.json');
 
 describe('Date and Time Utility Functions', () => {
-  test('isoToIcsDateTime should convert ISO 8601 to ICS format', () => {
-    const isoDate = '2025-02-01T09:00:00Z';
-    const result = isoToIcsDateTime(isoDate);
-    expect(result).toBe('20250201T090000Z');
+  test('parseSimpleDate should convert YYYY-MM-DD to Date object', () => {
+    const dateString = '2025-02-01';
+    const result = parseSimpleDate(dateString);
+    expect(result.getFullYear()).toBe(2025);
+    expect(result.getMonth()).toBe(1); // February is month 1 (0-indexed)
+    expect(result.getDate()).toBe(1);
   });
 
-  test('dateTimeToIcs should combine date and time to ICS format', () => {
-    const date = new Date('2025-02-01T00:00:00Z');
+  test('dateTimeToIcs should combine date and time to ICS format without timezone', () => {
+    const date = new Date(2025, 1, 1); // February 1, 2025
     const timeString = '09:00';
     const result = dateTimeToIcs(date, timeString);
-    expect(result).toBe('20250201T090000Z');
+    expect(result).toBe('20250201T090000');
+  });
+
+  test('getCurrentIcsTimestamp should return current timestamp in ICS format', () => {
+    const result = getCurrentIcsTimestamp();
+    expect(result).toMatch(/^\d{8}T\d{6}$/);
   });
 
   test('findFirstWeekdayOccurrence should find correct weekday', () => {
     // 2025-02-01 is a Saturday (day 6)
-    const startDate = new Date('2025-02-01T00:00:00Z');
+    const startDate = new Date(2025, 1, 1); // February 1, 2025
     
     // Find first Monday (day 1)
     const mondayResult = findFirstWeekdayOccurrence(startDate, 1);
@@ -56,50 +64,52 @@ describe('Date and Time Utility Functions', () => {
 
 describe('ICS Recurrence and Exclusion Functions', () => {
   test('generateWeeklyRRule should create correct recurrence rule', () => {
-    const endDate = new Date('2025-06-30T23:59:59Z');
+    const endDate = new Date(2025, 5, 30); // June 30, 2025
     const result = generateWeeklyRRule(endDate);
-    expect(result).toBe('FREQ=WEEKLY;UNTIL=20250630T235959Z');
+    expect(result).toBe('FREQ=WEEKLY;UNTIL=20250630T235959');
   });
 
   test('generateExceptionDates should find dates in break periods', () => {
-    const startDate = new Date('2025-02-01T00:00:00Z');
-    const endDate = new Date('2025-06-30T23:59:59Z');
+    const startDate = new Date(2025, 1, 1); // February 1, 2025
+    const endDate = new Date(2025, 5, 30); // June 30, 2025
     const weekday = 1; // Monday
+    const eventStartTime = '09:00';
     
     const breaks: PaperBreak[] = [
       {
         title: 'Mid-semester Break',
-        startDate: '2025-04-01T00:00:00Z',
-        endDate: '2025-04-07T23:59:59Z'
+        startDate: '2025-04-01',
+        endDate: '2025-04-07'
       }
     ];
     
-    const result = generateExceptionDates(startDate, endDate, weekday, breaks);
-    expect(result).toContain('20250407'); // April 7th, 2025 is a Monday
+    const result = generateExceptionDates(startDate, endDate, weekday, eventStartTime, breaks);
+    expect(result).toContain('20250407T090000'); // April 7th, 2025 at 9:00 AM
   });
 
   test('generateExceptionDates should handle multiple breaks', () => {
-    const startDate = new Date('2025-02-01T00:00:00Z');
-    const endDate = new Date('2025-06-30T23:59:59Z');
+    const startDate = new Date(2025, 1, 1); // February 1, 2025
+    const endDate = new Date(2025, 5, 30); // June 30, 2025
     const weekday = 1; // Monday
+    const eventStartTime = '09:00';
     
     const breaks: PaperBreak[] = [
       {
         title: 'Mid-semester Break',
-        startDate: '2025-04-01T00:00:00Z',
-        endDate: '2025-04-07T23:59:59Z'
+        startDate: '2025-04-01',
+        endDate: '2025-04-07'
       },
       {
         title: 'Easter Break',
-        startDate: '2025-04-17T00:00:00Z',
-        endDate: '2025-04-21T23:59:59Z'
+        startDate: '2025-04-17',
+        endDate: '2025-04-21'
       }
     ];
     
-    const result = generateExceptionDates(startDate, endDate, weekday, breaks);
+    const result = generateExceptionDates(startDate, endDate, weekday, eventStartTime, breaks);
     expect(result.length).toBeGreaterThan(0);
-    expect(result).toContain('20250407'); // April 7th, 2025 is a Monday
-    expect(result).toContain('20250421'); // April 21st, 2025 is a Monday
+    expect(result).toContain('20250407T090000'); // April 7th, 2025 at 9:00 AM
+    expect(result).toContain('20250421T090000'); // April 21st, 2025 at 9:00 AM
   });
 });
 
@@ -108,8 +118,8 @@ describe('Event Creation Functions', () => {
     const paper: Paper = {
       code: 'CS101',
       title: 'Introduction to Computer Science',
-      startDate: '2025-02-01T00:00:00Z',
-      endDate: '2025-06-30T23:59:59Z',
+      startDate: '2025-02-01',
+      endDate: '2025-06-30',
       breaks: [],
       memo: 'Fundamental concepts of programming',
       events: []
@@ -131,14 +141,16 @@ describe('Event Creation Functions', () => {
     expect(result.location).toBe('Room A101');
     expect(result.rrule).toContain('FREQ=WEEKLY');
     expect(result.uid).toContain('CS101-Lecture-1-0900');
+    expect(result.dtstart).toMatch(/^\d{8}T\d{6}$/);
+    expect(result.dtend).toMatch(/^\d{8}T\d{6}$/);
   });
 
   test('createIcsEvent should handle events without memo', () => {
     const paper: Paper = {
       code: 'MATH201',
       title: 'Calculus II',
-      startDate: '2025-02-01T00:00:00Z',
-      endDate: '2025-06-30T23:59:59Z',
+      startDate: '2025-02-01',
+      endDate: '2025-06-30',
       breaks: [],
       events: []
     };
@@ -162,13 +174,13 @@ describe('Event Creation Functions', () => {
     const paper: Paper = {
       code: 'CS101',
       title: 'Introduction to Computer Science',
-      startDate: '2025-02-01T00:00:00Z',
-      endDate: '2025-06-30T23:59:59Z',
+      startDate: '2025-02-01',
+      endDate: '2025-06-30',
       breaks: [
         {
           title: 'Mid-semester Break',
-          startDate: '2025-04-01T00:00:00Z',
-          endDate: '2025-04-07T23:59:59Z'
+          startDate: '2025-04-01',
+          endDate: '2025-04-07'
         }
       ],
       events: []
@@ -196,9 +208,9 @@ describe('ICS Formatting Functions', () => {
       summary: 'Test Event',
       description: 'Test Description',
       location: 'Test Location',
-      dtstart: '20250201T090000Z',
-      dtend: '20250201T103000Z',
-      rrule: 'FREQ=WEEKLY;UNTIL=20250630T235959Z'
+      dtstart: '20250201T090000',
+      dtend: '20250201T103000',
+      rrule: 'FREQ=WEEKLY;UNTIL=20250630T235959'
     };
 
     const result = formatIcsEvent(event);
@@ -209,9 +221,10 @@ describe('ICS Formatting Functions', () => {
     expect(result).toContain('SUMMARY:Test Event');
     expect(result).toContain('DESCRIPTION:Test Description');
     expect(result).toContain('LOCATION:Test Location');
-    expect(result).toContain('DTSTART:20250201T090000Z');
-    expect(result).toContain('DTEND:20250201T103000Z');
-    expect(result).toContain('RRULE:FREQ=WEEKLY;UNTIL=20250630T235959Z');
+    expect(result).toContain('DTSTART:20250201T090000');
+    expect(result).toContain('DTEND:20250201T103000');
+    expect(result).toContain('RRULE:FREQ=WEEKLY;UNTIL=20250630T235959');
+    expect(result).toContain('DTSTAMP:');
   });
 
   test('formatIcsEvent should handle events with exception dates', () => {
@@ -220,15 +233,15 @@ describe('ICS Formatting Functions', () => {
       summary: 'Test Event',
       description: 'Test Description',
       location: 'Test Location',
-      dtstart: '20250201T090000Z',
-      dtend: '20250201T103000Z',
-      rrule: 'FREQ=WEEKLY;UNTIL=20250630T235959Z',
-      exdate: ['20250407', '20250421']
+      dtstart: '20250201T090000',
+      dtend: '20250201T103000',
+      rrule: 'FREQ=WEEKLY;UNTIL=20250630T235959',
+      exdate: ['20250407T090000', '20250421T090000']
     };
 
     const result = formatIcsEvent(event);
     
-    expect(result).toContain('EXDATE:20250407,20250421');
+    expect(result).toContain('EXDATE:20250407T090000,20250421T090000');
   });
 
   test('formatIcsCalendar should create valid ICS calendar string', () => {
@@ -288,8 +301,8 @@ describe('Main Conversion Function', () => {
     const paper: Paper = {
       code: 'TEST101',
       title: 'Test Paper',
-      startDate: '2025-01-01T00:00:00Z',
-      endDate: '2025-12-31T23:59:59Z',
+      startDate: '2025-01-01',
+      endDate: '2025-12-31',
       breaks: [],
       events: []
     };
