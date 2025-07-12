@@ -5,12 +5,12 @@ Designed for academic use cases, including lectures, labs, and tutorials with re
 
 ## Features
 
-- ✅ **Cross-Environment Compatibility**: Works in both frontend and backend JavaScript/TypeScript environments
+- ✅ **TypeScript Support**: Full TypeScript support with strict type checking
 - ✅ **Weekly Recurrence**: Supports weekly recurring events with RRULE
 - ✅ **Break Periods**: Automatically excludes break periods using EXDATE
 - ✅ **Multiple Event Types**: Handles lectures, labs, tutorials, and other event types
 - ✅ **Calendar Compatibility**: Compatible with Google Calendar, Apple Calendar, and Microsoft Outlook
-- ✅ **TypeScript Support**: Full TypeScript support with strict type checking
+- ✅ **Cross-Environment**: Works in both frontend and backend JavaScript/TypeScript environments
 
 ## Installation
 
@@ -27,13 +27,13 @@ const papers = [
   {
     code: 'CS101',
     title: 'Introduction to Computer Science',
-    startDate: '2025-02-01T00:00:00Z',
-    endDate: '2025-06-30T23:59:59Z',
+    startDate: '2025-02-01',
+    endDate: '2025-06-30',
     breaks: [
       {
         title: 'Mid-semester Break',
-        startDate: '2025-04-01T00:00:00Z',
-        endDate: '2025-04-07T23:59:59Z'
+        startDate: '2025-04-01',
+        endDate: '2025-04-07'
       }
     ],
     memo: 'Fundamental concepts of programming',
@@ -68,8 +68,8 @@ console.log(icsData);
 interface Paper {
   code: string;                    // Course code (e.g., "CS101")
   title: string;                   // Course title
-  startDate: string;               // Course start date (ISO 8601 format, UTC)
-  endDate: string;                 // Course end date (ISO 8601 format, UTC)
+  startDate: string;               // Course start date (YYYY-MM-DD format)
+  endDate: string;                 // Course end date (YYYY-MM-DD format)
   breaks: PaperBreak[];            // Array of break periods
   memo?: string;                   // Optional course description
   events: PaperEvent[];            // Array of recurring events
@@ -93,14 +93,14 @@ interface PaperEvent {
 ```typescript
 interface PaperBreak {
   title: string;                   // Break title (e.g., "Mid-semester Break")
-  startDate: string;               // Break start date (ISO 8601 format, UTC)
-  endDate: string;                 // Break end date (ISO 8601 format, UTC)
+  startDate: string;               // Break start date (YYYY-MM-DD format)
+  endDate: string;                 // Break end date (YYYY-MM-DD format)
 }
 ```
 
 ## API Reference
 
-### Main Functions
+### Main Function
 
 #### `convertToIcs(papers: Paper[]): string`
 
@@ -112,30 +112,9 @@ Converts an array of paper objects into an ICS calendar string.
 **Returns:**
 - ICS formatted string ready for importing into calendar applications
 
-### Utility Functions
+### Usage Examples
 
-The library also exports utility functions for advanced use cases:
-
-#### Date/Time Functions
-- `isoToIcsDateTime(isoDate: string): string` - Convert ISO 8601 to ICS format
-- `dateTimeToIcs(date: Date, timeString: string): string` - Combine date and time
-- `findFirstWeekdayOccurrence(startDate: Date, weekday: number): Date` - Find first occurrence of weekday
-
-#### Event Creation Functions
-- `createIcsEvent(paper: Paper, event: PaperEvent): IcsEvent` - Create ICS event object
-- `generateEventId(paperCode: string, eventTitle: string, weekday: number, startTime: string): string` - Generate unique event ID
-
-#### ICS Formatting Functions
-- `formatIcsEvent(event: IcsEvent): string` - Format single event as ICS string
-- `formatIcsCalendar(calendar: IcsCalendar): string` - Format calendar as ICS string
-
-#### Recurrence Functions
-- `generateWeeklyRRule(endDate: Date): string` - Generate weekly recurrence rule
-- `generateExceptionDates(startDate: Date, endDate: Date, weekday: number, breaks: PaperBreak[]): string[]` - Generate exception dates for breaks
-
-## Examples
-
-### Basic Usage
+#### Basic Usage
 
 ```typescript
 import { convertToIcs } from 'unischedule-ics';
@@ -144,8 +123,8 @@ const papers = [
   {
     code: 'MATH201',
     title: 'Calculus II',
-    startDate: '2025-02-01T00:00:00Z',
-    endDate: '2025-06-30T23:59:59Z',
+    startDate: '2025-02-01',
+    endDate: '2025-06-30',
     breaks: [],
     events: [
       {
@@ -162,27 +141,25 @@ const papers = [
 const icsString = convertToIcs(papers);
 ```
 
-### Advanced Usage with Breaks
+#### With Break Periods
 
 ```typescript
-import { convertToIcs } from 'unischedule-ics';
-
 const papers = [
   {
     code: 'PHYS301',
     title: 'Quantum Mechanics',
-    startDate: '2025-02-01T00:00:00Z',
-    endDate: '2025-06-30T23:59:59Z',
+    startDate: '2025-02-01',
+    endDate: '2025-06-30',
     breaks: [
       {
         title: 'Mid-semester Break',
-        startDate: '2025-04-01T00:00:00Z',
-        endDate: '2025-04-07T23:59:59Z'
+        startDate: '2025-04-01',
+        endDate: '2025-04-07'
       },
       {
         title: 'Easter Break',
-        startDate: '2025-04-17T00:00:00Z',
-        endDate: '2025-04-21T23:59:59Z'
+        startDate: '2025-04-17',
+        endDate: '2025-04-21'
       }
     ],
     memo: 'Advanced quantum theory course',
@@ -208,7 +185,7 @@ const papers = [
 const icsString = convertToIcs(papers);
 ```
 
-### Using with File System (Node.js)
+#### Save to File (Node.js)
 
 ```typescript
 import { convertToIcs } from 'unischedule-ics';
@@ -220,7 +197,7 @@ const icsData = convertToIcs(papers);
 writeFileSync('university-schedule.ics', icsData);
 ```
 
-### Using in Browser
+#### Download in Browser
 
 ```typescript
 import { convertToIcs } from 'unischedule-ics';
@@ -231,26 +208,11 @@ const icsData = convertToIcs(papers);
 const blob = new Blob([icsData], { type: 'text/calendar' });
 const url = URL.createObjectURL(blob);
 
-// Create download link
 const a = document.createElement('a');
 a.href = url;
 a.download = 'university-schedule.ics';
 a.click();
 ```
-
-## ICS Output Features
-
-The generated ICS files include:
-
-- **VCALENDAR**: Standard calendar container
-- **VEVENT**: Individual events with:
-  - Unique UIDs for each event
-  - Proper date/time formatting (UTC)
-  - Weekly recurrence rules (RRULE)
-  - Exception dates for breaks (EXDATE)
-  - Event summaries with course codes
-  - Detailed descriptions including course titles and memos
-  - Location information
 
 ## Development
 
@@ -270,16 +232,13 @@ npm run dev
 
 ## Testing
 
-The library includes comprehensive unit tests covering:
-
-- Date and time utility functions
+Comprehensive test coverage including:
+- Date and time parsing
 - Event creation and formatting
 - Recurrence rule generation
 - Exception date handling
-- ICS format validation
-- Integration tests with real test data
+- Edge cases and error handling
 
-Run tests with:
 ```bash
 npm test
 ```
