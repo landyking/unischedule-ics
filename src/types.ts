@@ -23,3 +23,22 @@ export interface Paper {
   memo?: string;
   events: PaperEvent[];
 }
+
+// Additional interfaces for ICS generation
+export interface IcsEvent {
+  uid: string;
+  summary: string;
+  description: string;
+  location: string;
+  dtstart: string; // YYYYMMDDTHHMMSSZ format
+  dtend: string; // YYYYMMDDTHHMMSSZ format
+  rrule?: string; // Recurrence rule
+  exdate?: string[]; // Exception dates
+}
+
+export interface IcsCalendar {
+  events: IcsEvent[];
+  prodid: string;
+  version: string;
+  calscale: string;
+}

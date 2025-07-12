@@ -1,4 +1,4 @@
-import { Paper, PaperBreak, PaperEvent } from '../src/types';
+import { Paper, PaperBreak, PaperEvent, IcsEvent, IcsCalendar } from '../src/types';
 
 describe('Type Definitions Tests', () => {
   test('Paper interface should accept valid data', () => {
@@ -45,5 +45,50 @@ describe('Type Definitions Tests', () => {
     expect(paper.memo).toBeUndefined();
     expect(paper.breaks).toHaveLength(0);
     expect(paper.events).toHaveLength(0);
+  });
+
+  test('IcsEvent interface should accept valid data', () => {
+    const icsEvent: IcsEvent = {
+      uid: 'test-event@unischedule-ics',
+      summary: 'Test Event',
+      description: 'Test Description',
+      location: 'Test Location',
+      dtstart: '20250101T090000Z',
+      dtend: '20250101T100000Z',
+      rrule: 'FREQ=WEEKLY;UNTIL=20251231T235959Z',
+      exdate: ['20250405', '20250412']
+    };
+
+    expect(icsEvent.uid).toBe('test-event@unischedule-ics');
+    expect(icsEvent.rrule).toBe('FREQ=WEEKLY;UNTIL=20251231T235959Z');
+    expect(icsEvent.exdate).toHaveLength(2);
+  });
+
+  test('IcsEvent interface should work without optional properties', () => {
+    const icsEvent: IcsEvent = {
+      uid: 'test-event@unischedule-ics',
+      summary: 'Test Event',
+      description: 'Test Description',
+      location: 'Test Location',
+      dtstart: '20250101T090000Z',
+      dtend: '20250101T100000Z'
+    };
+
+    expect(icsEvent.rrule).toBeUndefined();
+    expect(icsEvent.exdate).toBeUndefined();
+  });
+
+  test('IcsCalendar interface should accept valid data', () => {
+    const icsCalendar: IcsCalendar = {
+      events: [],
+      prodid: '-//unischedule-ics//EN',
+      version: '2.0',
+      calscale: 'GREGORIAN'
+    };
+
+    expect(icsCalendar.events).toHaveLength(0);
+    expect(icsCalendar.prodid).toBe('-//unischedule-ics//EN');
+    expect(icsCalendar.version).toBe('2.0');
+    expect(icsCalendar.calscale).toBe('GREGORIAN');
   });
 });
