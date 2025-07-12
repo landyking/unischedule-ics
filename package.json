@@ -1,6 +1,6 @@
 {
   "name": "unischedule-ics",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A focused JavaScript library for converting university course schedules into .ics calendar files",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -28,5 +28,13 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/landyking/unischedule-ics.git"
+  },
+  "homepage": "https://github.com/landyking/unischedule-ics",
+  "bugs": {
+    "url": "https://github.com/landyking/unischedule-ics/issues"
+  }
 }
